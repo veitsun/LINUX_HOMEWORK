@@ -10,7 +10,12 @@ include_directories(include)
 add_subdirectory(src)
 
 add_executable(main main.cpp)
-
-
+add_executable(test test.cpp)
+add_executable(test2 test2.cpp)
+add_executable(test3 test3.cpp)
+add_executable(test4 test4.cpp)
 
 target_link_libraries(main PRIVATE SUNWEI pthread)
+target_link_libraries(test PRIVATE pthread)
+target_link_libraries(test2 PRIVATE pthread)
+target_link_libraries(test4 PRIVATE pthread)

@@ -42,5 +42,11 @@ play: config build
 runmain:
 	@./build/main
 
+runtest:
+	@./build/test
+
+runtest2:
+	@./build/test2
+
 
 .PHONY: all config build clean rebuild
