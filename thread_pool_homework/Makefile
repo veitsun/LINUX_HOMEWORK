@@ -39,11 +39,8 @@ replay: clean config build
 
 play: config build
 
-runsunwei:
-	@./build/src/sunwei
-runsunwei2:
-	@./build/src/sunwei2
-runspp:
-	@./build/src/spp
+runmain:
+	@./build/main
+
 
 .PHONY: all config build clean rebuild
