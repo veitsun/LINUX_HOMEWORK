@@ -16,6 +16,7 @@ add_executable(test3 test3.cpp)
 add_executable(test4 test4.cpp)
 add_executable(test5 test5.cpp)
 add_executable(test6 test6.cpp)
+add_executable(test7 test7.cpp)
 
 # gcc -Wall test6.cpp -lpthread -lm -o test6
 target_link_libraries(main PRIVATE SUNWEI pthread)
@@ -24,3 +25,4 @@ target_link_libraries(test2 PRIVATE pthread)
 target_link_libraries(test4 PRIVATE pthread)
 target_link_libraries(test5 PRIVATE pthread)
 target_link_libraries(test6 PRIVATE pthread m)
+target_link_libraries(test7 PRIVATE pthread)
