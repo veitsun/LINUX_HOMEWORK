@@ -1,11 +1,10 @@
 // 三个线程共同访问count变量
-// thread 2 和 thread 3 竞争地对其进行加 1 操作
-// thread 1 等 count 达到 12 的时候，一次性加 125
+// thread 2 和 thread 3 竞争地对 count 进行加 1 操作
+// thread 1 等 count 达到 12 的时候，count 一次性加 125
 // thread 2 和 thread 3 再去竞争 count 的控制权
-// 直到完成自己对 count 加 10 的操作
+// 直到thread 2和 thread 3 完成对 count 一共加 10 次的操作
 
 #include <climits>
-#include <iostream>
 #include <pthread.h>
 #include <stdio.h>
 #include <unistd.h>
