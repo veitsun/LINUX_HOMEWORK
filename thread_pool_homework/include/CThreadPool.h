@@ -5,10 +5,12 @@
 #include <condition_variable>
 #include <functional>
 #include <future>
+#include <memory>
 #include <mutex>
 #include <pthread.h>
 #include <string>
 #include <thread>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -28,16 +30,27 @@ private:
   // pthread_cond_t m_pthreadCond;   // 条件变量
   std::condition_variable condition;
 
-  bool shutdown; // 状态管理，控制线程池的生命周期
+  bool m_shutdown; // 状态管理，控制线程池的生命周期
 
 public:
   CThreadPool(const int threadNum);
   // 模板化的任务提交方法
   template <class F, class... Args>
-  auto submit(F &&f, Args &&...args)
-      -> std::future<typename std::result_of<F(Args...)>::type>;
+  auto submit(F &&f, Args &&...args) -> std::future<decltype(f(args...))> {
+    std::function<decltype(f(args...))()> func =
+        std::bind(std::forward<F>(f), std::forward<Args>(args)...);
+    auto task_ptr =
+        std::make_shared<std::packaged_task<decltype(f(args...))()>>(func);
+    std::function<void()> wrapper_func = [task_ptr]() { (*task_ptr)(); };
+    m_queue.enqueue(wrapper_func);
+    condition.notify_one();
+    return task_ptr->get_future();
+  }
 
   ~CThreadPool();
+
+  void init();
+  void shutdown();
 };
 
 #endif

@@ -1,45 +1,28 @@
-#include "../include/CMergeSort.h"
-#include <vector>
+#include "CMergeSort.h"
+#include <cstddef>
+#include <cstring>
 
-using namespace std;
-
-std::vector<int> CMergeSort::merge(const std::vector<int> &left,
-                                   const std::vector<int> &right) {
-
-  vector<int> result;
-  auto it1 = left.begin();
-  auto it2 = right.begin();
-  while (it1 != left.end() && it2 != right.end()) {
-    if (*it1 < *it2) {
-      result.push_back(*it1);
-      ++it1;
-    } else {
-      result.push_back(*it2);
-      ++it2;
-    }
+// Ordinary merge function for merge sort
+void CMergeSort::merge(int *a, int beg, int med, int end) {
+  int left = beg, right = med;
+  size_t sz = end - beg;
+  int temp[sz];
+  int i = 0;
+  while (left < med || right < end) {
+    if ((right >= end) || (left < med && a[left] < a[right]))
+      temp[i++] = a[left++];
+    else
+      temp[i++] = a[right++];
   }
-  result.insert(result.end(), it1, left.end());
-  result.insert(result.end(), it2, right.end());
-
-  return result;
+  memcpy(a + beg, temp, sz * sizeof(int));
 }
 
-std::vector<int> CMergeSort::merge_sort(std::vector<int> &array) {
-
-  if (array.size() <= 1) { // 递归结束的条件判断
-    return array;
-  }
-  // 否则的话，对两边进行归并排序
-  size_t mid = array.size() / 2;
-  vector<int> left(array.begin(), array.begin() + mid);
-  vector<int> right(array.begin() + mid, array.end());
-
-  // 递归的对两边进行归并排序
-  auto left_ret = merge_sort(left);
-  auto right_ret = merge_sort(right);
-
-  return merge(left_ret, right_ret);
-  // merge_sort(left);
-  // merge_sort(right);
-  // return merge(left, right);
+// Ordinary merge_sort function for merge sort
+void CMergeSort::merge_sort(int *a, int beg, int end) {
+  if (end - beg <= 1)
+    return;
+  int med = beg + (end - beg) / 2;
+  merge_sort(a, beg, med);
+  merge_sort(a, med, end);
+  merge(a, beg, med, end);
 }

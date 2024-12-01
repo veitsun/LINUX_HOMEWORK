@@ -33,13 +33,18 @@ build:
 clean:
 	@echo "Cleaning up..."
 	@$(CLEAN)
+	@rm -rf ./test
 
 # 重新配置并构建
 replay: clean config build
 
 play: config build
 
-runmain:
-	@./build/main
+generator:
+	@mkdir ./test
+	@./gen_test.sh 10000
+
+run:
+	@./build/main ./test/ ./result.txt
 
 .PHONY: all config build clean rebuild
