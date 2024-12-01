@@ -4,10 +4,10 @@ file(GLOB HELLOLIB_SRC_POOL ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 # combime both list into hello_src
 
-find_path(INCLUDE_DIR CThreadPool.h HINTS ${CMAKE_SOURCE_DIR}/include)
+find_path(INCLUDE_DIR ThreadPool.h HINTS ${CMAKE_SOURCE_DIR}/include)
 # 检查是否找到了路径
 if(NOT INCLUDE_DIR)
-    message(FATAL_ERROR "CThreadPool.h not found!")
+    message(FATAL_ERROR "ThreadPool.h not found!")
 endif()
 include_directories(${INCLUDE_DIR})
 # # 输出调试信息
