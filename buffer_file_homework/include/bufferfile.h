@@ -3,6 +3,9 @@
 
 #include <cstddef>
 #include <cstdio>
+#include <mutex>
+#include <string>
+#include <vector>
 class BufferedFile {
 public:
   enum SeekMode {
@@ -16,15 +19,29 @@ public:
   // 在程序运行时不可以更改，并且编译时使用其值进行优化
 
 private:
-  FILE *file_;
-  bool flush_write_buffer(); // 写缓冲区刷新操作
-  bool fill_read_buffer();
+  FILE *file;
+  std::string filename;
+  std::vector<char> write_buffer;
+  std::vector<char> read_buffer;
+  size_t write_buffer_pos;
+  size_t read_buffer_pos;
+  size_t read_buffer_size;
+  size_t file_pos;
+  bool is_dirty;
+  std::mutex mutex;
 
 public:
+  bool flush_write_buffer(); // 写缓冲区刷新操作
+  bool fill_read_buffer();
+  BufferedFile();
+  ~BufferedFile();
+  bool open(const std::string &filename, const std::string &mode);
   size_t write(const void *data, size_t size); // 写操作
   size_t read(void *buffer, size_t size);      // 读操作
 
   long long lseek(long long offset, SeekMode mode); // 文件定位操作
+  void close();
+  void flush();
 };
 
 #endif
