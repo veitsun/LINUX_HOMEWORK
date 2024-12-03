@@ -20,8 +20,15 @@ bool BufferedFile::flush_write_buffer() {
 }
 
 bool BufferedFile::fill_read_buffer() {
+  // 从文件中读取数据到内存中
+  // read_buffer.data() 指向目标缓冲区的指针
+  // 每个数据块一个字节大小
+  // read_buffer.size() 要读取数据块的数量
+  // file 文件流
+  // 将
   read_buffer_size = fread(read_buffer.data(), 1, read_buffer.size(), file);
-  read_buffer_pos = 0;
+  // std::cout << read_buffer.size() << std::endl;
+  read_buffer_pos = 0; // 读缓冲区的指针归到开始位置
   return read_buffer_size > 0;
 }
 
@@ -40,7 +47,7 @@ BufferedFile::~BufferedFile() { close(); }
 bool BufferedFile::open(const std::string &filename, const std::string &mode) {
   std::lock_guard<std::mutex> lock(mutex);
   if (this->file) {
-    close();
+    close(); // 如果文件已经打开，则需要关闭文件
   }
   this->filename = filename;
   this->file = fopen(this->filename.c_str(), mode.c_str());
@@ -56,16 +63,15 @@ bool BufferedFile::open(const std::string &filename, const std::string &mode) {
   return true;
 }
 
-size_t BufferedFile::write(const void *data, size_t size) {
+size_t BufferedFile::write(const void *data) {
   std::lock_guard<std::mutex> lock(mutex);
   // 写操作
   if (!this->file) {
     return 0;
   }
   const char *ptr = static_cast<const char *>(data);
-  // fwrite(this->file, size, size_t n, FILE *__restrict s) n
-  size_t remaining = size; // 剩余待写入数据量
-  size_t written = 0;      // 已经写入数据量
+  size_t remaining = strlen(ptr); // 剩余待写入数据量
+  size_t written = 0;             // 已经写入数据量
 
   while (remaining > 0) {
     // 如果写缓冲区已经满了，则需要先刷新到文件
@@ -92,19 +98,54 @@ size_t BufferedFile::write(const void *data, size_t size) {
   return written;
 }
 
+// size_t BufferedFile::read(void *buffer) {
+//   std::lock_guard<std::mutex> lock(mutex);
+//   if (!file) {
+//     return 0;
+//   }
+//   char *ptr = static_cast<char *>(buffer);
+//   size_t remaining = strlen(ptr);
+//   size_t read_total = 0;
+
+//   while (remaining > 0) {
+//     // 如果缓冲区已经空了，则需要重新填充
+//     if (read_buffer_pos >= read_buffer_size) {
+//       if (!fill_read_buffer()) {
+//         break; // 填充失败 ，可能已经达到文件尾
+//       }
+//     }
+
+//     // 计算本次可读取的数据量
+//     size_t available = read_buffer_size - read_buffer_pos;
+//     size_t to_read = std::min(available, remaining);
+//     // 从读缓冲区复制数据到用户缓冲区
+//     memcpy(ptr + read_total, read_buffer.data() + read_buffer_pos, to_read);
+//     // 更新各种位置指针
+//     read_buffer_pos += to_read;
+//     read_total += to_read;
+//     remaining -= to_read;
+//     file_pos += to_read;
+//   }
+//   return read_total;
+// }
+
 size_t BufferedFile::read(void *buffer, size_t size) {
   std::lock_guard<std::mutex> lock(mutex);
   if (!file) {
     return 0;
   }
   char *ptr = static_cast<char *>(buffer);
-  size_t remaining = size;
-  size_t read_total = 0;
+  size_t remaining = size; // 剩余需要读出的量
+  size_t read_total = 0;   // 已经读出的总量
 
   while (remaining > 0) {
+    // std::cout << remaining << std::endl;
     // 如果缓冲区已经空了，则需要重新填充
+    // 读缓冲的位置已经达到读缓冲规定的大小
     if (read_buffer_pos >= read_buffer_size) {
+      // std::cout << "read_buffer_pos >= read_buffer_size" << std::endl;
       if (!fill_read_buffer()) {
+        std::cout << "缓冲区不够大" << std::endl;
         break; // 填充失败 ，可能已经达到文件尾
       }
     }
@@ -152,9 +193,4 @@ void BufferedFile::close() {
     fclose(file);
     file = nullptr;
   }
-}
-
-void BufferedFile::flush() {
-  std::lock_guard<std::mutex> lock(mutex);
-  flush_write_buffer();
 }

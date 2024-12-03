@@ -27,7 +27,7 @@ private:
   size_t read_buffer_pos;
   size_t read_buffer_size;
   size_t file_pos;
-  bool is_dirty;
+  bool is_dirty; // 写缓存是否有数据，有数据为true
   std::mutex mutex;
 
 public:
@@ -36,12 +36,12 @@ public:
   BufferedFile();
   ~BufferedFile();
   bool open(const std::string &filename, const std::string &mode);
-  size_t write(const void *data, size_t size); // 写操作
-  size_t read(void *buffer, size_t size);      // 读操作
+  size_t write(const void *data); // 写操作
+  // size_t read(void *buffer);      // 读操作
+  size_t read(void *buffer, size_t size); // 读操作
 
   long long lseek(long long offset, SeekMode mode); // 文件定位操作
   void close();
-  void flush();
 };
 
 #endif

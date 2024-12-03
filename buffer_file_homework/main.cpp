@@ -10,15 +10,17 @@ int main(int argc, char *argv[]) {
   if (!file.open("test.txt", "w+b")) {
     std::cerr << "failed to open file" << std::endl;
   }
-  // 写入数据
+  // 写入数据到文件缓存中
   const char *data = "hello world sunwei";
-  size_t written = file.write(data, strlen(data));
+  const char *data2 = "yeah yeah yeah //";
+  size_t written = file.write(data);
+  file.write(data2);
   // 回到文件开始位置
   file.lseek(0, BufferedFile::SEEK_SET_MODE);
 
   // 读取数据
   char buffer[100];
-  size_t read = file.read(buffer, written);
+  size_t read = file.read(buffer, written + 10);
   buffer[read] = '\0';
   std::cout << "Read: " << buffer << std::endl;
 
